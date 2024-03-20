@@ -1,34 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { FormEvent, useState } from 'react'
 import './App.css'
+import Input from './components/Input'
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [state, setState] = useState('')
+  const [converter, setConverter] = useState({
+    text: '',
+    background: '',
+    color: '',
+  });
+
+  const examString = (str : string) : boolean => {
+    return /^#[0-9, A, a, B, b, C, c, D, d, e, E, F, f]{6}/.test(str);
+  } 
+
+  const toRgb = (hex: string) : string => {
+    const r = hex.substring(1,3);
+    const g = hex.substring(3,5);
+    const b = hex.substring(4);
+
+    return `rgb(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)})`;
+  }
+
+  const debugInput = (event: FormEvent<HTMLInputElement>) :void => {
+    setState((event.target as HTMLInputElement).value)
+
+    if ((event.target as HTMLInputElement).value.length === 7) {
+      if (examString((event.target as HTMLInputElement).value)) {
+        setConverter({
+          text: toRgb(state),
+          background: toRgb(state),
+          color: toRgb(state)
+        });
+      } else {
+        setConverter({
+          text: 'ошибка!',
+          background: 'rgb(256, 0, 0)',
+          color: 'rgb(256, 0, 0)',
+        })
+      }
+    } 
+  }
+
+  const container = {
+    background: converter.background,
+    color: converter.color
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className='container' style={container}>
+        <Input value={state} placeholder={'Введите hex #ffffff'} onChange={debugInput}/>
+        <span className='converter' >{converter.text}</span>
+    </div>
+
   )
 }
 
